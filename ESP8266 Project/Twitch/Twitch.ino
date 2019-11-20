@@ -2,6 +2,7 @@
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
+#include <Adafruit_NeoPixel.h>
 
 typedef struct {
   char ssid[35];
@@ -15,12 +16,16 @@ typedef struct {
 configData_t cfg;
 int UID;
 #define MAX_TELNET_CLIENTS 2
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(256, 5, NEO_GRB + NEO_KHZ800);
 WiFiClientSecure client;
 WiFiServer TelnetServer(23);
 WiFiClient TelnetClient[MAX_TELNET_CLIENTS];
 bool ConnectionEstablished;
 
 void setup() {
+  pixels.begin();
+  pixels.setBrightness(10);
+  drawTwitch(0,0);
   Serial.begin(115200);
   loadSettings();
   if(cfg.userName == "" || true) { //Später muss das true wohl weg :)
@@ -41,7 +46,6 @@ void setup() {
   Serial.println(WiFi.localIP());
   TelnetServer.begin();
   TelnetServer.setNoDelay(true);
-
   
   client.setTimeout(15000);
   client.setInsecure();
@@ -68,6 +72,7 @@ void loop() {
   deserializeJson(doc2, r);
   String followers=doc2["total"];
   Serial.print("Followers: ");
+  drawNumber(followers.toInt());
   Serial.println(followers);
   int wait = 0;
   while (wait < 15) {
@@ -217,8 +222,8 @@ void showSettings() {
 }
 
 void applyDefaultSettings() {
-  strcpy(cfg.ssid,"Duria-Main");
-  strcpy(cfg.password,"Passwort");
+  strcpy(cfg.ssid,"FritzBoxHarry");
+  strcpy(cfg.password,"Harry1960Heidi1965");
   strcpy(cfg.host,"api.twitch.tv");
   strcpy(cfg.clientId,"eurzdb7y4misq0fb47s6u0glmegov3");
   strcpy(cfg.userName,"RealForTN0X");
@@ -238,3 +243,74 @@ void loadSettings() {
   EEPROM.get(0,cfg);
   EEPROM.end();
   }
+
+const uint64_t TWITCH[] = {
+  0x040cf781a9a981ff,
+  0x0000087e56567e00
+};
+const uint64_t NUMBER[] = {
+  0x1c08080808080c08,
+  0x3e0408102020221c,
+  0x1c2220201820221c,
+  0x20203e2224283020,
+  0x1c2220201e02023e,
+  0x1c2222221e02221c,
+  0x040404081020203e,
+  0x1c2222221c22221c,
+  0x1c22203c2222221c,
+  0x1c2222222222221c
+};
+const int NUMBER_LEN = sizeof(NUMBER)/8;
+
+void drawTwitch(int x,int y) {
+  for (int i = 0; i <= 8; i++) {
+    byte row1 = (TWITCH[0] >> i * 8) & 0xFF;
+    byte row2 = (TWITCH[1] >> i * 8) & 0xFF;
+    for (int j = 0; j <= 8; j++) {
+      pixels.setPixelColor(getLED(i+1+x,j+1+y), pixels.Color(bitRead(row1, j)*100,bitRead(row1, j)*65,bitRead(row1, j)*165));
+      if(bitRead(row2, j)){
+        pixels.setPixelColor(getLED(i+1+x,j+1+y), pixels.Color(255,255,255));
+      }
+    }
+  }
+  pixels.show();
+}
+
+void drawNumber(int number) {
+  int t = number%10000/1000-1;
+  int h = number%1000/100-1;
+  int z = number%100/10-1;
+  int e = number%10-1;
+  if(number>9999) {
+    t=h=z=e=8;
+  }
+  if(e!=0) {
+    if(z!=0) {
+      if(h!=0) {
+        if(t!=0) {
+          displayImage(NUMBER[t],0,8);
+        }
+        displayImage(NUMBER[h],0,14);
+      }
+      displayImage(NUMBER[z],0,20);
+    }
+    displayImage(NUMBER[e],0,26);
+  }
+}
+
+void displayImage(uint64_t image,int x,int y) {
+  for (int i = 0; i <= 8; i++) {
+    byte row = (image >> i * 8) & 0xFF;
+    for (int j = 0; j <= 8; j++) {
+      pixels.setPixelColor(getLED(i+1+x,j+1+y), pixels.Color(bitRead(row, j)*255,bitRead(row, j)*255,bitRead(row, j)*255));
+    }
+  }
+  pixels.show();
+}
+
+int getLED(int x, int y) {
+    if(x<1||x>8||y<1||y>32) {
+      return -1;
+    }
+    return (8*(y-1))+((y%2)*x)+(((y-1)%2)*((x*-1)+9))-1;
+}
