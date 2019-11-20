@@ -190,10 +190,12 @@ void Telnet()
 
 void TelnetCommand(String c) {
   Serial.println("TelnetCommand: "+c);
-  if(c.startsWith("set "){
+  if(c.startsWith("set ")){
     if(c.startsWith("set username=")) {
         String dummy = c.substring(c.indexOf('=')+1,c.length()-1);
-        strcpy(cfg.userName,dummy,30);
+        char* c2;
+        dummy.toCharArray(c2,30);
+        strcpy(cfg.userName,c2);
       }
     showSettings();
     saveSettings();
@@ -202,20 +204,20 @@ void TelnetCommand(String c) {
   }
      
 void showSettings() {
-  TelnetMsg("SSID: "+cfg.ssid);
-  TelnetMsg("Passwort: "+cfg.password);
-  TelnetMsg("Host: "+cfg.host);
-  TelnetMsg("ClientId: "+cfg.clientId);
-  TelnetMsg("Port: "+cfg.httpsPort);
-  TelnetMsg("Username: "+cfg.userName);
+  TelnetMsg(String("SSID: ")+cfg.ssid);
+  TelnetMsg(String("Passwort: ")+cfg.password);
+  TelnetMsg(String("Host: ")+cfg.host);
+  TelnetMsg(String("ClientId: ")+cfg.clientId);
+  TelnetMsg(String("Port: ")+cfg.httpsPort);
+  TelnetMsg(String("Username: ")+cfg.userName);
 }
 
 void applyDefaultSettings() {
-  strcpy(cfg.ssid,"FritzBoxHarry",30);
-  strcpy(cfg.password,"Passwort",30);
-  strcpy(cfg.host,"api.twitch.tv",30);
-  strcpy(cfg.clientId,"eurzdb7y4misq0fb47s6u0glmegov3",30);
-  strcpy(cfg.userName,"RealForTN0X",30);
+  strcpy(cfg.ssid,"FritzBoxHarry");
+  strcpy(cfg.password,"Passwort");
+  strcpy(cfg.host,"api.twitch.tv");
+  strcpy(cfg.clientId,"eurzdb7y4misq0fb47s6u0glmegov3");
+  strcpy(cfg.userName,"RealForTN0X");
   cfg.httpsPort = 443;
   }
 
