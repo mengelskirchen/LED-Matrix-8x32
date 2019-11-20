@@ -4,11 +4,11 @@
 #include <WiFiClientSecure.h>
 
 typedef struct {
-  char ssid[30];
-  char password[30];
-  char host[30];
-  char clientId[30];
-  char userName[30];
+  char ssid[35];
+  char password[35];
+  char host[35];
+  char clientId[35];
+  char userName[35];
   int httpsPort;
 } configData_t;
 
@@ -52,6 +52,7 @@ void setup() {
 void getUserId() {
   String url = String("/helix/users?login=")+String(cfg.userName);
   String line = WebGet(url);
+  Serial.println(line);
   StaticJsonDocument<100> doc;
   deserializeJson(doc, line);
   UID=doc["data"][0]["id"];
@@ -94,17 +95,18 @@ String WebGet(String url) {
     client.print(String("GET ") + url + " HTTP/1.1\r\n" +
                "Host: " + cfg.host + "\r\n" +
                "Client-ID: " + cfg.clientId + "\r\n" +
-               "User-Agent: ESP8266/NodeMCU 3.0\r\n" +
                "Connection: close\r\n\r\n");
     //Serial.println("request sent");
+    String line = "";
     while (client.connected()) {
-    String l = client.readStringUntil('\n');
+      String l = client.readStringUntil('\n');
+      Serial.println(l);
       if (l == "\r") {
         //Serial.println("headers received");
         break;
       }
     }
-    String line = client.readStringUntil('\n');
+    line = client.readStringUntil('\n');
     return line;
   }
   return "";
@@ -193,9 +195,8 @@ void TelnetCommand(String c) {
   if(c.startsWith("set ")){
     if(c.startsWith("set username=")) {
         String dummy = c.substring(c.indexOf('=')+1,c.length()-1);
-        char* c2;
-        dummy.toCharArray(c2,30);
-        strcpy(cfg.userName,c2);
+        strcpy(cfg.userName,dummy.c_str());
+        //dummy.toCharArray(cfg.userName,35);
       }
     showSettings();
     saveSettings();
@@ -204,6 +205,8 @@ void TelnetCommand(String c) {
   }
      
 void showSettings() {
+  TelnetMsg(String(""));
+  TelnetMsg(String("CONFIG:"));
   TelnetMsg(String("SSID: ")+cfg.ssid);
   TelnetMsg(String("Passwort: ")+cfg.password);
   TelnetMsg(String("Host: ")+cfg.host);
@@ -213,8 +216,8 @@ void showSettings() {
 }
 
 void applyDefaultSettings() {
-  strcpy(cfg.ssid,"FritzBoxHarry");
-  strcpy(cfg.password,"Passwort");
+  strcpy(cfg.ssid,"Duria-Main");
+  strcpy(cfg.password,"ugwaz6ICKmDSvQVX");
   strcpy(cfg.host,"api.twitch.tv");
   strcpy(cfg.clientId,"eurzdb7y4misq0fb47s6u0glmegov3");
   strcpy(cfg.userName,"RealForTN0X");
