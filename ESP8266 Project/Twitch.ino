@@ -215,7 +215,7 @@ void TelnetCommand(String c) {
 
 void applyDefaultSettings() {
   cfg.ssid = "FritzBoxHarry";
-  cfg.password = "Harry1960Heidi1965";
+  cfg.password = "Passwort";
   cfg.host = "api.twitch.tv";
   cfg.clientId = "eurzdb7y4misq0fb47s6u0glmegov3";
   cfg.userName = "RealForTN0X";
