@@ -50,7 +50,7 @@ void setup() {
 }
 
 void getUserId() {
-  String url = String("/helix/users?login=")+String(cfg.userName);
+  String url = String("/helix/users?login=")+cfg.userName;
   String line = WebGet(url);
   Serial.println(line);
   StaticJsonDocument<100> doc;
@@ -100,7 +100,6 @@ String WebGet(String url) {
     String line = "";
     while (client.connected()) {
       String l = client.readStringUntil('\n');
-      Serial.println(l);
       if (l == "\r") {
         //Serial.println("headers received");
         break;
@@ -195,8 +194,10 @@ void TelnetCommand(String c) {
   if(c.startsWith("set ")){
     if(c.startsWith("set username=")) {
         String dummy = c.substring(c.indexOf('=')+1,c.length()-1);
-        strcpy(cfg.userName,dummy.c_str());
-        //dummy.toCharArray(cfg.userName,35);
+        dummy.toCharArray(cfg.userName,dummy.length());
+        //char c2[35];
+        //dummy.toCharArray(c2, dummy.length());
+        //strcpy(cfg.userName, c2);
       }
     showSettings();
     saveSettings();
@@ -217,7 +218,7 @@ void showSettings() {
 
 void applyDefaultSettings() {
   strcpy(cfg.ssid,"Duria-Main");
-  strcpy(cfg.password,"ugwaz6ICKmDSvQVX");
+  strcpy(cfg.password,"Passwort");
   strcpy(cfg.host,"api.twitch.tv");
   strcpy(cfg.clientId,"eurzdb7y4misq0fb47s6u0glmegov3");
   strcpy(cfg.userName,"RealForTN0X");
