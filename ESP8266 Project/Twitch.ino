@@ -4,11 +4,11 @@
 #include <WiFiClientSecure.h>
 
 typedef struct {
-  char* ssid;
-  char* password;
-  char* host;
-  char* clientId;
-  char* userName;
+  char ssid[30];
+  char password[30];
+  char host[30];
+  char clientId[30];
+  char userName[30];
   int httpsPort;
 } configData_t;
 
@@ -151,12 +151,7 @@ void Telnet()
         Serial.print("New Telnet client connected to session "); Serial.println(i+1);
         
         TelnetClient[i].flush();  // clear input buffer, else you get strange characters
-        TelnetClient[i].println("Hallo Alter!");
-        TelnetClient[i].println("----------------------------------------------------------------");
-        TelnetClient[i].println("Einstellungen:");
-        TelnetClient[i].println("set username=[Username]");
-        TelnetClient[i].println("----------------------------------------------------------------");
-        
+        showSettings();
         ConnectionEstablished = true; 
         
         break;
@@ -195,30 +190,32 @@ void Telnet()
 
 void TelnetCommand(String c) {
   Serial.println("TelnetCommand: "+c);
+  if(c.startsWith("set "){
     if(c.startsWith("set username=")) {
-        char* c2="";
         String dummy = c.substring(c.indexOf('=')+1,c.length()-1);
-        TelnetMsg("dummy: "+dummy);
-        dummy.toCharArray(c2,dummy.length());
-        TelnetMsg("Username geändert auf: "+String(c2));
-        cfg.userName=c2;
-        delay(100);
-        saveSettings();
-        delay(100);
-        loadSettings();
-        delay(100);
-        TelnetMsg("Username geändert auf: "+String(cfg.userName));
-        getUserId();
-        delay(100);
+        strcpy(cfg.userName,dummy,30);
       }
+    showSettings();
+    saveSettings();
+    getUserId(); // Eigentlich restart
+    }
   }
+     
+void showSettings() {
+  TelnetMsg("SSID: "+cfg.ssid);
+  TelnetMsg("Passwort: "+cfg.password);
+  TelnetMsg("Host: "+cfg.host);
+  TelnetMsg("ClientId: "+cfg.clientId);
+  TelnetMsg("Port: "+cfg.httpsPort);
+  TelnetMsg("Username: "+cfg.userName);
+}
 
 void applyDefaultSettings() {
-  cfg.ssid = "FritzBoxHarry";
-  cfg.password = "Passwort";
-  cfg.host = "api.twitch.tv";
-  cfg.clientId = "eurzdb7y4misq0fb47s6u0glmegov3";
-  cfg.userName = "RealForTN0X";
+  strcpy(cfg.ssid,"FritzBoxHarry",30);
+  strcpy(cfg.password,"Passwort",30);
+  strcpy(cfg.host,"api.twitch.tv",30);
+  strcpy(cfg.clientId,"eurzdb7y4misq0fb47s6u0glmegov3",30);
+  strcpy(cfg.userName,"RealForTN0X",30);
   cfg.httpsPort = 443;
   }
 
