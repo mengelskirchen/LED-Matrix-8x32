@@ -222,8 +222,8 @@ void showSettings() {
 }
 
 void applyDefaultSettings() {
-  strcpy(cfg.ssid,"FritzBoxHarry");
-  strcpy(cfg.password,"Harry1960Heidi1965");
+  strcpy(cfg.ssid,"WLANNAME");
+  strcpy(cfg.password,"Passwort");
   strcpy(cfg.host,"api.twitch.tv");
   strcpy(cfg.clientId,"eurzdb7y4misq0fb47s6u0glmegov3");
   strcpy(cfg.userName,"RealForTN0X");
